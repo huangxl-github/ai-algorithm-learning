@@ -112,11 +112,74 @@ def verify_week1() -> tuple[int, int]:
     else:
         fail("请完善 notes/week01-环境配置笔记.md（记录你的环境信息）")
 
+    print("\n=== W1 GitHub 检验 ===")
+    total += 1
+    result = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0 and "origin/main" in result.stdout:
+        ok("本地 main 已关联 origin/main")
+        passed += 1
+    else:
+        fail("请完成 git push -u origin main")
+
+    return passed, total
+
+
+def verify_week2() -> tuple[int, int]:
+    """返回 (通过数, 总项数)。"""
+    passed = 0
+    total = 0
+
+    core_file = ROOT / "code" / "week02" / "python_core.py"
+    csv_file = ROOT / "code" / "week02" / "data" / "sample_scores.csv"
+
+    print("\n=== W2 文件检验 ===")
+    for path in [core_file, csv_file]:
+        total += 1
+        if path.exists():
+            ok(f"文件存在: {path.relative_to(ROOT)}")
+            passed += 1
+        else:
+            fail(f"缺少文件: {path.relative_to(ROOT)}")
+
+    print("\n=== W2 代码检验 ===")
+    total += 1
+    if core_file.exists():
+        mod = load_module(core_file, "python_core")
+        stats = mod.list_stats([1, 2, 3, 4, 5])
+        word = mod.word_count("hello world hello")
+        evens = mod.filter_even([1, 2, 3, 4, 5, 6])
+        student = mod.Student("测试", 85)
+        csv_stats = mod.read_csv_numeric_stats(csv_file, "score")
+
+        tests_ok = (
+            stats["mean"] == 3.0
+            and stats["max"] == 5
+            and word["hello"] == 2
+            and evens == [2, 4, 6]
+            and student.grade() == "B"
+            and csv_stats["max"] == 95.0
+            and csv_stats["count"] == 5.0
+        )
+        if tests_ok:
+            ok("python_core.py 全部单元检验通过")
+            ok(f"CSV score 列均值 = {csv_stats['mean']:.2f}")
+            passed += 1
+        else:
+            fail("python_core.py 检验失败")
+    else:
+        fail("缺少 python_core.py")
+
     return passed, total
 
 
 WEEK_VERIFIERS = {
     1: verify_week1,
+    2: verify_week2,
 }
 
 
