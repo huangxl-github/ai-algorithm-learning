@@ -1,0 +1,15 @@
+{
+  "saved_at": "2026-06-23 17:30:26",
+  "students": [
+    {
+      "name": "张三",
+      "score": 88,
+      "grade": "B"
+    },
+    {
+      "name": "李四",
+      "score": 72,
+      "grade": "C"
+    }
+  ]
+}

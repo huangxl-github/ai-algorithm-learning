@@ -134,11 +134,12 @@ def verify_week2() -> tuple[int, int]:
     passed = 0
     total = 0
 
-    core_file = ROOT / "code" / "week02" / "python_core.py"
+    practice_file = ROOT / "code" / "week02" / "practice.py"
+    guide_file = ROOT / "notes" / "week02-学习指南.md"
     csv_file = ROOT / "code" / "week02" / "data" / "sample_scores.csv"
 
     print("\n=== W2 文件检验 ===")
-    for path in [core_file, csv_file]:
+    for path in [practice_file, guide_file, csv_file]:
         total += 1
         if path.exists():
             ok(f"文件存在: {path.relative_to(ROOT)}")
@@ -146,33 +147,87 @@ def verify_week2() -> tuple[int, int]:
         else:
             fail(f"缺少文件: {path.relative_to(ROOT)}")
 
-    print("\n=== W2 代码检验 ===")
+    print("\n=== W2 练习检验（practice.py）===")
     total += 1
-    if core_file.exists():
-        mod = load_module(core_file, "python_core")
-        stats = mod.list_stats([1, 2, 3, 4, 5])
-        word = mod.word_count("hello world hello")
-        evens = mod.filter_even([1, 2, 3, 4, 5, 6])
-        student = mod.Student("测试", 85)
-        csv_stats = mod.read_csv_numeric_stats(csv_file, "score")
+    if not practice_file.exists():
+        fail("缺少 practice.py")
+        return passed, total
 
-        tests_ok = (
-            stats["mean"] == 3.0
-            and stats["max"] == 5
-            and word["hello"] == 2
-            and evens == [2, 4, 6]
-            and student.grade() == "B"
-            and csv_stats["max"] == 95.0
-            and csv_stats["count"] == 5.0
-        )
-        if tests_ok:
-            ok("python_core.py 全部单元检验通过")
-            ok(f"CSV score 列均值 = {csv_stats['mean']:.2f}")
+    try:
+        mod = load_module(practice_file, "practice_w2")
+    except Exception as e:
+        fail(f"无法加载 practice.py: {e}")
+        return passed, total
+
+    try:
+        assert mod.get_first_and_last([10, 20, 30]) == (10, 30)
+        assert mod.list_slice_middle([1, 2, 3, 4, 5]) == [2, 3, 4]
+        assert mod.build_student("小明", 18, 90.0) == {"name": "小明", "age": 18, "score": 90.0}
+        assert mod.count_words("Hello hello World") == {"hello": 2, "world": 1}
+        assert abs(mod.celsius_to_fahrenheit(0) - 32.0) < 0.01
+        assert mod.average([10, 20, 30]) == 20.0
+        assert mod.average([]) == 0.0
+        assert mod.filter_even([1, 2, 3, 4, 5, 6]) == [2, 4, 6]
+        cols = mod.read_csv_column(csv_file, "name")
+        assert len(cols) == 5
+        stats = mod.read_csv_numeric_stats(csv_file, "score")
+        assert stats["max"] == 95.0 and stats["count"] == 5.0
+        assert abs(stats["mean"] - 86.4) < 0.01
+        ok("practice.py 全部 10 项练习通过")
+        ok(f"CSV score 列均值 = {stats['mean']:.2f}")
+        passed += 1
+    except Exception as e:
+        fail(f"practice.py 练习未通过: {e}")
+        fail("请打开 code/week02/practice.py 完成 # TODO 后重试")
+
+    return passed, total
+
+
+def verify_week3() -> tuple[int, int]:
+    """返回 (通过数, 总项数)。"""
+    passed = 0
+    total = 0
+
+    practice_file = ROOT / "code" / "week03" / "practice.py"
+    guide_file = ROOT / "notes" / "week03-学习指南.md"
+
+    print("\n=== W3 文件检验 ===")
+    for path in [practice_file, guide_file]:
+        total += 1
+        if path.exists():
+            ok(f"文件存在: {path.relative_to(ROOT)}")
             passed += 1
         else:
-            fail("python_core.py 检验失败")
-    else:
-        fail("缺少 python_core.py")
+            fail(f"缺少文件: {path.relative_to(ROOT)}")
+
+    print("\n=== W3 练习检验（practice.py）===")
+    total += 1
+    if not practice_file.exists():
+        fail("缺少 practice.py")
+        return passed, total
+
+    try:
+        mod = load_module(practice_file, "practice_w3")
+        assert mod.use_average_from_week2() == 20.0
+        s = mod.Student("小明", 95)
+        assert s.grade() == "A"
+        mgr = mod.StudentManager()
+        mgr.add("张三", 88)
+        mgr.add("李四", 72)
+        assert mgr.count() == 2
+        assert mgr.remove("王五") is False
+        assert mod.safe_int("abc", 0) == 0
+        assert mod.safe_divide(1, 0) is None
+        assert "小明" in mod.student_to_json(mod.Student("小明", 90))
+        data_file = ROOT / "code" / "week03" / "data" / "students.json"
+        mod.save_students(mgr, data_file)
+        loaded = mod.load_students(data_file)
+        assert loaded.count() == 2
+        ok("practice.py 全部 W3 练习通过")
+        passed += 1
+    except Exception as e:
+        fail(f"practice.py 练习未通过: {e}")
+        fail("请打开 code/week03/practice.py 完成 # TODO 后重试")
 
     return passed, total
 
@@ -180,6 +235,7 @@ def verify_week2() -> tuple[int, int]:
 WEEK_VERIFIERS = {
     1: verify_week1,
     2: verify_week2,
+    3: verify_week3,
 }
 
 
