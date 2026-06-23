@@ -232,10 +232,67 @@ def verify_week3() -> tuple[int, int]:
     return passed, total
 
 
+def verify_week4() -> tuple[int, int]:
+    """返回 (通过数, 总项数)。"""
+    passed = 0
+    total = 0
+
+    practice_file = ROOT / "code" / "week04" / "practice.py"
+    guide_file = ROOT / "notes" / "week04-学习指南.md"
+
+    print("\n=== W4 文件检验 ===")
+    for path in [practice_file, guide_file]:
+        total += 1
+        if path.exists():
+            ok(f"文件存在: {path.relative_to(ROOT)}")
+            passed += 1
+        else:
+            fail(f"缺少文件: {path.relative_to(ROOT)}")
+
+    total += 1
+    try:
+        import numpy as np  # noqa: F401
+        ok("NumPy 已安装")
+        passed += 1
+    except ImportError:
+        fail("NumPy 未安装 → pip install numpy")
+
+    print("\n=== W4 练习检验（practice.py）===")
+    total += 1
+    if not practice_file.exists():
+        fail("缺少 practice.py")
+        return passed, total
+
+    try:
+        import numpy as np
+        mod = load_module(practice_file, "practice_w4")
+
+        assert np.array_equal(mod.create_range_array(0, 10, 2), [0, 2, 4, 6, 8])
+        z = mod.create_zeros_matrix(2, 3)
+        assert z.shape == (2, 3)
+        m = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        assert np.array_equal(mod.get_column(m, 0), [1, 4, 7])
+        assert np.array_equal(mod.filter_greater_than(m, 5), [6, 7, 8, 9])
+        stats = mod.array_stats(np.array([1, 2, 3, 4, 5]))
+        assert stats["mean"] == 3.0 and stats["argmax"] == 4
+        a = np.array([[1, 2], [3, 4]])
+        b = np.array([[5, 6], [7, 8]])
+        result = mod.matrix_multiply_manual(a, b)
+        assert np.array_equal(result, [[19, 22], [43, 50]])
+        ok("practice.py 全部 W4 练习通过")
+        passed += 1
+    except Exception as e:
+        fail(f"practice.py 练习未通过: {e}")
+        fail("请打开 code/week04/practice.py 完成 # TODO 后重试")
+
+    return passed, total
+
+
 WEEK_VERIFIERS = {
     1: verify_week1,
     2: verify_week2,
     3: verify_week3,
+    4: verify_week4,
 }
 
 
