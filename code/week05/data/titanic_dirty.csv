@@ -1,0 +1,11 @@
+PassengerId,Name,Age,Sex,Fare,Embarked
+1,张三,22,male,7.25,S
+2,李四,,female,71.28,C
+3,王五,26,female,7.92,S
+4,赵六,35,male,,S
+5,钱七,28,female,53.1,S
+6,孙八,invalid,male,8.05,S
+7,周九,54,male,51.86,S
+8,吴十,,female,21.07,S
+9,郑一,32,female,,C
+10,张三,22,male,7.25,S

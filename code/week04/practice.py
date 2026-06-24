@@ -15,19 +15,19 @@ import numpy as np
 def create_range_array(start: int, stop: int, step: int = 1) -> np.ndarray:
     """用 np.arange 创建等差数组，如 arange(0, 10, 2) → [0,2,4,6,8]"""
     # TODO
-    pass
+    return np.arange(start, stop, step)
 
 
 def create_zeros_matrix(rows: int, cols: int) -> np.ndarray:
     """创建 rows 行 cols 列的全零矩阵。"""
     # TODO: np.zeros((rows, cols))
-    pass
+    return np.zeros((rows, cols))
 
 
 def get_shape_and_dtype(arr: np.ndarray) -> tuple[tuple, str]:
     """返回 (shape, dtype字符串)，如 ((2, 3), 'float64')"""
     # TODO
-    pass
+    return arr.shape, arr.dtype
 
 
 # ========== 练习 3～4：索引与切片 ==========
@@ -35,19 +35,19 @@ def get_shape_and_dtype(arr: np.ndarray) -> tuple[tuple, str]:
 def get_column(matrix: np.ndarray, col_index: int) -> np.ndarray:
     """取矩阵的某一列，如 matrix[:, col_index]"""
     # TODO
-    pass
+    return matrix[:, col_index]
 
 
 def get_row(matrix: np.ndarray, row_index: int) -> np.ndarray:
     """取矩阵的某一行，如 matrix[row_index, :]"""
     # TODO
-    pass
+    return matrix[row_index, :]
 
 
 def filter_greater_than(arr: np.ndarray, threshold: float) -> np.ndarray:
     """布尔索引：返回所有大于 threshold 的元素。"""
     # TODO: arr[arr > threshold]
-    pass
+    return arr[arr > threshold]
 
 
 # ========== 练习 5～6：数组运算 ==========
@@ -55,13 +55,13 @@ def filter_greater_than(arr: np.ndarray, threshold: float) -> np.ndarray:
 def add_scalar(arr: np.ndarray, value: float) -> np.ndarray:
     """每个元素加上 value（广播）。"""
     # TODO
-    pass
+    return arr + value
 
 
 def elementwise_multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     """两个数组逐元素相乘（不是矩阵乘法）。"""
     # TODO
-    pass
+    return a * b
 
 
 # ========== 练习 7：聚合函数 ==========
@@ -69,7 +69,12 @@ def elementwise_multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 def array_stats(arr: np.ndarray) -> dict[str, float]:
     """返回 sum, mean, max, argmax。空数组时 sum/mean/max=0, argmax=-1。"""
     # TODO
-    pass
+    return {
+        "sum": arr.sum(),
+        "mean": arr.mean(),
+        "max": arr.max(),
+        "argmax": arr.argmax(),
+    }
 
 
 # ========== 练习 8～9：线性代数 ==========
@@ -77,13 +82,13 @@ def array_stats(arr: np.ndarray) -> dict[str, float]:
 def matrix_transpose(matrix: np.ndarray) -> np.ndarray:
     """矩阵转置。"""
     # TODO: matrix.T
-    pass
+    return matrix.T
 
 
 def vector_norm(vec: np.ndarray) -> float:
     """向量范数（长度），使用 np.linalg.norm。"""
     # TODO
-    pass
+    return np.linalg.norm(vec)
 
 
 # ========== 练习 10：周六项目 ==========
@@ -95,7 +100,12 @@ def matrix_multiply_manual(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     形状不匹配时 raise ValueError。
     """
     # TODO
-    pass
+    result = np.zeros((len(a), len(b[0])))
+    for i in range(len(a)):
+        for j in range(len(b[0])):
+            for k in range(len(b)):
+                result[i][j] += a[i][k] * b[k][j]
+    return result
 
 
 def _run_self_test() -> None:

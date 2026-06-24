@@ -288,11 +288,62 @@ def verify_week4() -> tuple[int, int]:
     return passed, total
 
 
+def verify_week5() -> tuple[int, int]:
+    """返回 (通过数, 总项数)。"""
+    passed = 0
+    total = 0
+
+    practice_file = ROOT / "code" / "week05" / "practice.py"
+    guide_file = ROOT / "notes" / "week05-学习指南.md"
+    data_file = ROOT / "code" / "week05" / "data" / "titanic_dirty.csv"
+
+    print("\n=== W5 文件检验 ===")
+    for path in [practice_file, guide_file, data_file]:
+        total += 1
+        if path.exists():
+            ok(f"文件存在: {path.relative_to(ROOT)}")
+            passed += 1
+        else:
+            fail(f"缺少文件: {path.relative_to(ROOT)}")
+
+    total += 1
+    try:
+        import pandas as pd  # noqa: F401
+        ok("Pandas 已安装")
+        passed += 1
+    except ImportError:
+        fail("Pandas 未安装 → pip install pandas")
+
+    print("\n=== W5 练习检验（practice.py）===")
+    total += 1
+    if not practice_file.exists():
+        fail("缺少 practice.py")
+        return passed, total
+
+    try:
+        mod = load_module(practice_file, "practice_w5")
+        cleaned = mod.clean_titanic_data(data_file)
+        assert len(cleaned) == 9
+        assert cleaned["Age"].isna().sum() == 0
+        assert cleaned["Fare"].isna().sum() == 0
+        females = mod.filter_by_sex(mod.load_csv(data_file), "female")
+        assert len(females) == 5
+        ok("practice.py 全部 W5 练习通过")
+        ok(f"清洗后 {len(cleaned)} 行，Age/Fare 无缺失")
+        passed += 1
+    except Exception as e:
+        fail(f"practice.py 练习未通过: {e}")
+        fail("请打开 code/week05/practice.py 完成 # TODO 后重试")
+
+    return passed, total
+
+
 WEEK_VERIFIERS = {
     1: verify_week1,
     2: verify_week2,
     3: verify_week3,
     4: verify_week4,
+    5: verify_week5,
 }
 
 
